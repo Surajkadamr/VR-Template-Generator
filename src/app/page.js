@@ -10,6 +10,7 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [downloadFormat, setDownloadFormat] = useState('docx'); // Default to DOCX
+  const [fileFormat, setFileFormat] = useState('docx');
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -99,11 +100,33 @@ Methodology: ${result.methodology || 'N/A'}`;
     }
   };
 
-  const handleDownload = () => {
-    if (downloadFormat === 'docx') {
-      handleDownloadDocx();
-    } else {
-      handleDownloadText();
+  const handleDownload = async () => {
+    if (!result) return;
+    
+    try {
+      setLoading(true);
+      
+      // Always use generate-from-template since PDF conversion requires LibreOffice
+      const endpoint = '/api/generate-from-template';
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(result),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate template file`);
+      }
+
+      const blob = await response.blob();
+      saveAs(blob, `${result.chapterName || 'chapter'}_template.docx`);
+    } catch (err) {
+      setError(err.message || `An error occurred while generating the template file`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,14 +175,13 @@ Methodology: ${result.methodology || 'N/A'}`;
             
             <div className={styles.downloadOptions}>
               <div className={styles.formatSelector}>
-                <label>Format:</label>
+                <label>File Format:</label>
                 <select 
-                  value={downloadFormat} 
-                  onChange={(e) => setDownloadFormat(e.target.value)}
+                  value={fileFormat} 
+                  onChange={(e) => setFileFormat(e.target.value)}
                   className={styles.formatSelect}
                 >
                   <option value="docx">DOCX</option>
-                  <option value="text">Text</option>
                 </select>
               </div>
               
@@ -168,7 +190,7 @@ Methodology: ${result.methodology || 'N/A'}`;
                 className={styles.downloadButton}
                 disabled={loading}
               >
-                {loading ? 'Generating...' : `Download Template (${downloadFormat.toUpperCase()})`}
+                {loading ? 'Generating...' : `Download Template (${fileFormat.toUpperCase()})`}
               </button>
             </div>
           </div>

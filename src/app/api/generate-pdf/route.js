@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType, ImageRun, BorderStyle, TabStopType, TabStopPosition } from 'docx';
+import { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType, ImageRun } from 'docx';
 import fs from 'fs';
 import path from 'path';
 
@@ -132,15 +132,14 @@ export async function POST(request) {
       return paragraphs;
     };
     
-    // Create document children array
-    const children = [];
+    // Create header with logo and company name
+    const headerChildren = [];
     
-    // Add logo and company name on the exact same line using tabs for positioning
+    // Add logo
     if (logoImage) {
-      children.push(
+      headerChildren.push(
         new Paragraph({
           children: [
-            // Logo on the left
             new ImageRun({
               data: logoImage,
               transformation: {
@@ -148,45 +147,25 @@ export async function POST(request) {
                 height: 100,
               },
             }),
-            // Tab to center position
-            new TextRun({ text: "\t" }),
-            // Company name in light blue
-            new TextRun({
-              text: "Bodyclone Innovations Pvt Ltd",
-              bold: true,
-              size: 32,
-              color: "4F81BD", // Light blue color
-            }),
           ],
-          tabStops: [
-            {
-              type: TabStopType.CENTER,
-              position: TabStopPosition.CENTER, // Center of the page
-            },
-          ],
-          spacing: { after: 400 }, // Extra space after the header
-        })
-      );
-    } else {
-      // If no logo, just add the company name
-      children.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: "Bodyclone Innovations Pvt Ltd",
-              bold: true,
-              size: 32,
-              color: "4F81BD", // Light blue color
-            }),
-          ],
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 400 }, // Extra space after the header
+          alignment: AlignmentType.LEFT,
+          spacing: { after: 0 },
         })
       );
     }
     
-    // Add Grade
-    children.push(
+    // Add company name
+    headerChildren.push(
+      new Paragraph({
+        text: "Bodyclone Innovations Pvt Ltd",
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 0, after: 300 },
+        heading: HeadingLevel.HEADING_1,
+      })
+    );
+    
+    // Add content sections
+    const contentChildren = [
       new Paragraph({
         children: [
           new TextRun({
@@ -196,11 +175,8 @@ export async function POST(request) {
           new TextRun(processText(data.grade)),
         ],
         spacing: { after: 120 },
-      })
-    );
-    
-    // Add Chapter Name
-    children.push(
+      }),
+      
       new Paragraph({
         children: [
           new TextRun({
@@ -210,11 +186,8 @@ export async function POST(request) {
           new TextRun(processText(data.chapterName)),
         ],
         spacing: { after: 200 },
-      })
-    );
-    
-    // Add Introduction heading
-    children.push(
+      }),
+      
       new Paragraph({
         children: [
           new TextRun({
@@ -223,14 +196,14 @@ export async function POST(request) {
           }),
         ],
         spacing: { after: 120 },
-      })
-    );
+      }),
+    ];
     
     // Add introduction paragraphs
-    children.push(...createFormattedParagraphs(data.introduction));
+    contentChildren.push(...createFormattedParagraphs(data.introduction));
     
-    // Add Assets heading
-    children.push(
+    // Add assets section
+    contentChildren.push(
       new Paragraph({
         children: [
           new TextRun({
@@ -243,10 +216,10 @@ export async function POST(request) {
     );
     
     // Add assets paragraphs
-    children.push(...createFormattedParagraphs(data.assets));
+    contentChildren.push(...createFormattedParagraphs(data.assets));
     
-    // Add Methodology heading
-    children.push(
+    // Add methodology section
+    contentChildren.push(
       new Paragraph({
         children: [
           new TextRun({
@@ -259,31 +232,31 @@ export async function POST(request) {
     );
     
     // Add methodology paragraphs
-    children.push(...createFormattedParagraphs(data.methodology));
+    contentChildren.push(...createFormattedParagraphs(data.methodology));
     
     // Add footer note
-    children.push(
+    contentChildren.push(
       new Paragraph({
         text: "Refer to a picture (if available) to make the chapters as visually compelling as possible. Alternatively, generate a suitable image using ChatGPT or DeepSeek.",
         spacing: { before: 200, after: 200 },
       })
     );
     
-    // Create the document with standard margins
+    // Create the document
     const doc = new Document({
       sections: [
         {
           properties: {
             page: {
               margin: {
-                top: 720, // 0.5 inch
-                right: 1440, // 1 inch
-                bottom: 1440, // 1 inch
-                left: 1440, // 1 inch
+                top: 1440, // 1 inch in twips
+                right: 1440,
+                bottom: 1440,
+                left: 1440,
               },
             },
           },
-          children: children,
+          children: [...headerChildren, ...contentChildren],
         },
       ],
       styles: {
@@ -307,11 +280,12 @@ export async function POST(request) {
         ],
       },
     });
-
+    
     // Generate the DOCX file
     const buffer = await Packer.toBuffer(doc);
     
-    // Return the document
+    // Since we can't convert to PDF without LibreOffice, return the DOCX instead
+    // with a message explaining the situation
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -319,9 +293,9 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    console.error('Error generating DOCX:', error);
+    console.error('Error generating document:', error);
     return NextResponse.json(
-      { error: 'Failed to generate DOCX file', details: error.message },
+      { error: 'Failed to generate document', details: error.message },
       { status: 500 }
     );
   }
