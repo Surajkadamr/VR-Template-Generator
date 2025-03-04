@@ -9,6 +9,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
+    const userGrade = formData.get('grade'); // Get the grade from form data
     
     if (!file) {
       return NextResponse.json(
@@ -64,10 +65,12 @@ export async function POST(request) {
     if (jsonMatch) {
       try {
         parsedResult = JSON.parse(jsonMatch[0]);
+        // Override the AI-generated grade with user input
+        parsedResult.grade = userGrade;
       } catch (e) {
         // If JSON parsing fails, try to extract the data differently
         parsedResult = {
-          grade: extractField(text, "grade"),
+          grade: userGrade, // Use user input grade
           chapterName: extractField(text, "chapterName"),
           introduction: extractField(text, "introduction"),
           assets: extractField(text, "assets"),
@@ -77,7 +80,7 @@ export async function POST(request) {
     } else {
       // Fallback extraction if JSON format wasn't returned
       parsedResult = {
-        grade: extractField(text, "grade"),
+        grade: userGrade, // Use user input grade
         chapterName: extractField(text, "chapterName"),
         introduction: extractField(text, "introduction"),
         assets: extractField(text, "assets"),

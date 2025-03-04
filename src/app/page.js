@@ -6,6 +6,7 @@ import { saveAs } from 'file-saver';
 
 export default function Home() {
   const [file, setFile] = useState(null);
+  const [grade, setGrade] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -30,12 +31,18 @@ export default function Home() {
       return;
     }
 
+    if (!grade.trim()) {
+      setError('Please enter a grade');
+      return;
+    }
+
     setLoading(true);
     setResult(null);
     setError(null);
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('grade', grade);
 
     try {
       const response = await fetch('/api/process-pdf', {
@@ -48,7 +55,10 @@ export default function Home() {
       }
 
       const data = await response.json();
-      setResult(data);
+      setResult({
+        ...data,
+        grade: grade
+      });
     } catch (err) {
       setError(err.message || 'An error occurred while processing the file');
     } finally {
@@ -122,7 +132,14 @@ Methodology: ${result.methodology || 'N/A'}`;
       }
 
       const blob = await response.blob();
-      saveAs(blob, `${result.chapterName || 'chapter'}_template.docx`);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${result.chapterName || 'chapter'}_template.docx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (err) {
       setError(err.message || `An error occurred while generating the template file`);
     } finally {
@@ -139,6 +156,21 @@ Methodology: ${result.methodology || 'N/A'}`;
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="grade-input" className={styles.label}>
+              Grade Level:
+            </label>
+            <input
+              type="text"
+              id="grade-input"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              placeholder="Enter grade (e.g., Grade 8)"
+              className={styles.input}
+              required
+            />
+          </div>
+
           <div className={styles.fileInput}>
             <input 
               type="file" 
@@ -154,7 +186,7 @@ Methodology: ${result.methodology || 'N/A'}`;
           <button 
             type="submit" 
             className={styles.button}
-            disabled={loading || !file}
+            disabled={loading || !file || !grade.trim()}
           >
             {loading ? 'Processing...' : 'Generate Template'}
           </button>
@@ -166,7 +198,7 @@ Methodology: ${result.methodology || 'N/A'}`;
           <div className={styles.result}>
             <h2>Generated Template</h2>
             <div className={styles.templateContent}>
-              <p><strong>Grade:</strong> {result.grade || 'N/A'}</p>
+              <p><strong>Grade:</strong> {result.grade}</p>
               <p><strong>Chapter Name:</strong> {result.chapterName || 'N/A'}</p>
               <p><strong>Introduction:</strong> {result.introduction || 'N/A'}</p>
               <p><strong>Assets Required:</strong> {result.assets || 'N/A'}</p>
