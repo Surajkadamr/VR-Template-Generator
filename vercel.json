@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/process-pdf/route.js": {
+      "maxDuration": 60
+    }
+  }
+} 
