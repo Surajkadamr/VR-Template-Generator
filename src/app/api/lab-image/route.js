@@ -12,7 +12,7 @@ export async function POST(request) {
     }
     
     // First, generate a prompt for the lab experiment
-    const promptResponse = await fetch(`${ 'https://vr-lab-backend.onrender.com'}/api/generate-image-prompt`, {
+    const promptResponse = await fetch(`${'https://vr-lab-backend.onrender.com'}/api/generate-image-prompt`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function POST(request) {
     }
     
     // Now, use the generated prompt to create an image
-    const imageResponse = await fetch(`${ 'https://vr-lab-backend.onrender.com'}/api/generate-image`, {
+    const imageResponse = await fetch(`${'https://vr-lab-backend.onrender.com'}/api/generate-image`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
