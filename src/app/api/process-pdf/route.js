@@ -97,7 +97,7 @@ export async function POST(request) {
     try {
       // Only proceed if we have lab experiments content
       if (parsedResult.labExperiments) {
-        const labImageResponse = await fetch(`${'https://vr-template-generator.vercel.app/'}/api/lab-image`, {
+        const labImageResponse = await fetch(`${'https://vr-template-generator.vercel.app'}/api/lab-image`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
