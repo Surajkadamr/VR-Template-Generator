@@ -93,33 +93,50 @@ export async function POST(request) {
       };
     }
 
-    // Generate image using lab-image API endpoint
+    // Generate lab image directly here instead of calling another endpoint
     try {
       // Only proceed if we have lab experiments content
       if (parsedResult.labExperiments) {
-        const labImageResponse = await fetch(`${'https://vr-template-generator.vercel.app'}/api/lab-image`, {
+        // Generate a prompt for the lab experiment
+        const promptResponse = await fetch('https://vr-lab-backend.onrender.com/api/generate-image-prompt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ labExperiment: parsedResult.labExperiments }),
+          body: JSON.stringify({ experimentDetails: parsedResult.labExperiments }),
         });
         
-        if (labImageResponse.ok) {
-          const labImageResult = await labImageResponse.json();
-          
-          if (labImageResult.success) {
-            parsedResult.imagePrompt = labImageResult.prompt;
-            parsedResult.imageData = labImageResult.imageData;
-            parsedResult.imageDescription = labImageResult.fallbackText;
-          } else {
-            console.warn('Lab image generation returned non-success status');
-            parsedResult.imageError = labImageResult.error || 'Unknown error';
-          }
-        } else {
-          console.warn('Failed to generate lab image through API');
-          parsedResult.imageError = 'Failed to connect to lab image service';
+        if (!promptResponse.ok) {
+          const errorData = await promptResponse.json();
+          throw new Error(`Failed to generate prompt: ${errorData.error || promptResponse.statusText}`);
         }
+        
+        const promptData = await promptResponse.json();
+        
+        if (!promptData.success || !promptData.prompt) {
+          throw new Error('Failed to generate a valid prompt');
+        }
+        
+        // Use the generated prompt to create an image
+        const imageResponse = await fetch('https://vr-lab-backend.onrender.com/api/generate-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: promptData.prompt }),
+        });
+        
+        if (!imageResponse.ok) {
+          const errorData = await imageResponse.json();
+          throw new Error(`Failed to generate image: ${errorData.error || imageResponse.statusText}`);
+        }
+        
+        const imageData = await imageResponse.json();
+        
+        // Add image data to the result
+        parsedResult.imagePrompt = promptData.prompt;
+        parsedResult.imageData = imageData.imageData;
+        parsedResult.imageDescription = imageData.text;
       }
     } catch (labImageError) {
       console.error('Error generating lab image:', labImageError);
