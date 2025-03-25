@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Document, Paragraph, TextRun, HeadingLevel, Packer, NumberingLevel, LevelFormat, AlignmentType } from 'docx';
+import { Document, Paragraph, TextRun, HeadingLevel, Packer, NumberingLevel, LevelFormat, AlignmentType, ImageRun } from 'docx';
 
 export async function POST(request) {
   try {
@@ -143,91 +143,168 @@ export async function POST(request) {
       return paragraphs;
     };
     
+    // Create document children array
+    const children = [
+      new Paragraph({
+        text: "VR Learning Template",
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+        spacing: {
+          after: 300,
+        },
+      }),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Grade: ",
+            bold: true,
+          }),
+          new TextRun(data.grade || "N/A"),
+        ],
+        spacing: {
+          after: 200,
+        },
+      }),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Chapter Name: ",
+            bold: true,
+          }),
+          new TextRun(data.chapterName || "N/A"),
+        ],
+        spacing: {
+          after: 200,
+        },
+      }),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Introduction to the chapter: ",
+            bold: true,
+          }),
+        ],
+        spacing: {
+          after: 120,
+        },
+      }),
+      
+      ...processParagraphs(data.introduction),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Assets required: ",
+            bold: true,
+          }),
+        ],
+        spacing: {
+          before: 200,
+          after: 120,
+        },
+      }),
+      
+      ...processParagraphs(data.assets),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Methodology: ",
+            bold: true,
+          }),
+        ],
+        spacing: {
+          before: 200,
+          after: 120,
+        },
+      }),
+      
+      ...processParagraphs(data.methodology),
+      
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Lab Experiments: ",
+            bold: true,
+          }),
+        ],
+        spacing: {
+          before: 200,
+          after: 120,
+        },
+      }),
+      
+      ...processParagraphs(data.labExperiments),
+      
+      // Add lab experiment image if available
+      ...(data.imageData ? (function() {
+        try {
+          // Extract base64 data from the data URL
+          const base64Regex = /^data:image\/\w+;base64,(.+)$/;
+          const matches = data.imageData.match(base64Regex);
+          
+          if (matches && matches.length > 1) {
+            const imageBuffer = Buffer.from(matches[1], 'base64');
+            
+            const imageElements = [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Lab Experiment Visualization:",
+                    bold: true,
+                  }),
+                ],
+                spacing: { before: 200, after: 120 },
+              }),
+              new Paragraph({
+                children: [
+                  new ImageRun({
+                    data: imageBuffer,
+                    transformation: {
+                      width: 550,
+                      height: 300,
+                    },
+                  }),
+                ],
+                spacing: { after: 200 },
+              })
+            ];
+            
+            // Add image prompt if available
+            if (data.imagePrompt) {
+              imageElements.push(
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: "Image Description: ",
+                      bold: true,
+                    }),
+                    new TextRun(data.imagePrompt),
+                  ],
+                  spacing: { after: 200 },
+                })
+              );
+            }
+            
+            return imageElements;
+          }
+          return [];
+        } catch (imageError) {
+          console.warn('Error adding image to document:', imageError);
+          return [];
+        }
+      })() : []),
+    ];
+    
     // Create a new document
     const doc = new Document({
       sections: [
         {
           properties: {},
-          children: [
-            new Paragraph({
-              text: "VR Learning Template",
-              heading: HeadingLevel.HEADING_1,
-              alignment: AlignmentType.CENTER,
-              spacing: {
-                after: 300,
-              },
-            }),
-            
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Grade: ",
-                  bold: true,
-                }),
-                new TextRun(data.grade || "N/A"),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Chapter Name: ",
-                  bold: true,
-                }),
-                new TextRun(data.chapterName || "N/A"),
-              ],
-              spacing: {
-                after: 200,
-              },
-            }),
-            
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Introduction to the chapter: ",
-                  bold: true,
-                }),
-              ],
-              spacing: {
-                after: 120,
-              },
-            }),
-            
-            ...processParagraphs(data.introduction),
-            
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Assets required: ",
-                  bold: true,
-                }),
-              ],
-              spacing: {
-                before: 200,
-                after: 120,
-              },
-            }),
-            
-            ...processParagraphs(data.assets),
-            
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Methodology: ",
-                  bold: true,
-                }),
-              ],
-              spacing: {
-                before: 200,
-                after: 120,
-              },
-            }),
-            
-            ...processParagraphs(data.methodology),
-          ],
+          children: children,
         },
       ],
     });

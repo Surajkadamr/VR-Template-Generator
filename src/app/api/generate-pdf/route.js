@@ -233,6 +233,21 @@ export async function POST(request) {
     
     // Add methodology paragraphs
     contentChildren.push(...createFormattedParagraphs(data.methodology));
+
+    contentChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Lab Experiments: ",
+            bold: true,
+          }),
+        ],
+        spacing: { before: 200, after: 120 },
+      })
+    );
+    
+    // Add methodology paragraphs
+    contentChildren.push(...createFormattedParagraphs(data.labExperiments));
     
     // Add footer note
     contentChildren.push(

@@ -29,6 +29,42 @@
   color: #666;
 }
 
+.navLinks {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.navLink {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.navLink:hover {
+  background-color: #0056b3;
+}
+
+.apiTestLink {
+  display: inline-block;
+  background-color: #0070f3;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.apiTestLink:hover {
+  background-color: #0051b3;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -173,4 +209,131 @@
 
 .input::placeholder {
   color: #9ca3af;
+}
+
+/* Image generation specific styles */
+.textArea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.textArea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.textArea::placeholder {
+  color: #9ca3af;
+}
+
+.imageContainer {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.generatedImage {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.textResult {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+}
+
+.textResult h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+  color: #374151;
+}
+
+.textResult p {
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+/* Sample prompts styles */
+.samplePrompts {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.samplePrompts h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #374151;
+}
+
+.promptButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.promptButton {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background-color: #e5e7eb;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #4b5563;
+  transition: all 0.2s ease-in-out;
+}
+
+.promptButton:hover {
+  background-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+/* Loading styles */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
+  color: #4b5563;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #4f46e5;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 } 

@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
-// Initialize Google Generative AI with your API key
-const genAI = new GoogleGenerativeAI('AIzaSyBrGaeEeEeEr2KEpDFVp0FE4ZmatPwhVlw');
+// Initialize Google Generative AI with your API key from environment variables
+const genAI = new GoogleGenerativeAI("AIzaSyC59TDceV-5GBV7KjE_7cOZqzdZMlGx3I0");
 
 export async function POST(request) {
   try {
@@ -38,6 +38,8 @@ export async function POST(request) {
     3. A brief introduction to the chapter (2-3 lines)
     4. Assets that would be required to create a VR experience for this content (be specific)
     5. Methodology for teaching this in VR (mention latest approaches)
+    6. Lab Experiments :-(The Experiment should be based on the content of the chapter) Imagine an interactive lab station where the user stands inside a circular table with an open entryway. The table is filled with various experiment-related items, each corresponding to specific chapters of study. The user can reach out, grab objects, and interact with them to conduct hands-on experiments. The setup should support multiple experiments covering the key intents of the chapters, ensuring an immersive and educational experience. If a circular table is not feasible, AI can suggest an alternative rectangular table with an open entry design that maintains accessibility and engagement.Suggest what type of models and experiments we need here so that students will do the VR based experiment related to the chapters. If experiments are not required suggest any alternative way to teach them in VR scene.
+
     
     Format your response in JSON with the following keys:
     {
@@ -45,7 +47,8 @@ export async function POST(request) {
       "chapterName": "",
       "introduction": "",
       "assets": "",
-      "methodology": ""
+      "methodology": "",
+      "labExperiments": ""
     }
     
     Here is the textbook content:
@@ -74,7 +77,8 @@ export async function POST(request) {
           chapterName: extractField(text, "chapterName"),
           introduction: extractField(text, "introduction"),
           assets: extractField(text, "assets"),
-          methodology: extractField(text, "methodology")
+          methodology: extractField(text, "methodology"),
+          labExperiments: extractField(text, "labExperiments")
         };
       }
     } else {
@@ -84,8 +88,42 @@ export async function POST(request) {
         chapterName: extractField(text, "chapterName"),
         introduction: extractField(text, "introduction"),
         assets: extractField(text, "assets"),
-        methodology: extractField(text, "methodology")
+        methodology: extractField(text, "methodology"),
+        labExperiments: extractField(text, "labExperiments")
       };
+    }
+
+    // Generate image using lab-image API endpoint
+    try {
+      // Only proceed if we have lab experiments content
+      if (parsedResult.labExperiments) {
+        const labImageResponse = await fetch(`${process.env.NEXTAUTH_URL || ''}/api/lab-image`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ labExperiment: parsedResult.labExperiments }),
+        });
+        
+        if (labImageResponse.ok) {
+          const labImageResult = await labImageResponse.json();
+          
+          if (labImageResult.success) {
+            parsedResult.imagePrompt = labImageResult.prompt;
+            parsedResult.imageData = labImageResult.imageData;
+            parsedResult.imageDescription = labImageResult.fallbackText;
+          } else {
+            console.warn('Lab image generation returned non-success status');
+            parsedResult.imageError = labImageResult.error || 'Unknown error';
+          }
+        } else {
+          console.warn('Failed to generate lab image through API');
+          parsedResult.imageError = 'Failed to connect to lab image service';
+        }
+      }
+    } catch (labImageError) {
+      console.error('Error generating lab image:', labImageError);
+      parsedResult.imageError = 'Failed to generate image: ' + labImageError.message;
     }
 
     return NextResponse.json(parsedResult);

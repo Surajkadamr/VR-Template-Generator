@@ -260,6 +260,76 @@ export async function POST(request) {
     
     // Add methodology paragraphs
     children.push(...createFormattedParagraphs(data.methodology));
+
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Lab Experiments: ",
+            bold: true,
+          }),
+        ],
+        spacing: { before: 200, after: 120 },
+      })
+    );
+    
+    // Add lab experiments paragraphs
+    children.push(...createFormattedParagraphs(data.labExperiments));
+    
+    // Add lab experiment image if available
+    if (data.imageData) {
+      try {
+        // Extract base64 data from the data URL
+        const base64Regex = /^data:image\/\w+;base64,(.+)$/;
+        const matches = data.imageData.match(base64Regex);
+        
+        if (matches && matches.length > 1) {
+          const imageBuffer = Buffer.from(matches[1], 'base64');
+          
+          children.push(
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Lab Experiment Visualization:",
+                  bold: true,
+                }),
+              ],
+              spacing: { before: 200, after: 120 },
+            }),
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: imageBuffer,
+                  transformation: {
+                    width: 550,
+                    height: 300,
+                  },
+                }),
+              ],
+              spacing: { after: 200 },
+            })
+          );
+          
+          // Add image prompt if available
+          if (data.imagePrompt) {
+            children.push(
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "Image Description: ",
+                    bold: true,
+                  }),
+                  new TextRun(data.imagePrompt),
+                ],
+                spacing: { after: 200 },
+              })
+            );
+          }
+        }
+      } catch (imageError) {
+        console.warn('Error adding image to document:', imageError);
+      }
+    }
     
     // Add footer note
     children.push(

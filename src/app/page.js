@@ -73,7 +73,8 @@ export default function Home() {
 Chapter Name: ${result.chapterName || 'N/A'}
 Introduction to the chapter: ${result.introduction || 'N/A'}
 Assets required: ${result.assets || 'N/A'}
-Methodology: ${result.methodology || 'N/A'}`;
+Methodology: ${result.methodology || 'N/A'}
+Lab Experiments: ${result.labExperiments || 'N/A'}`;
 
     const blob = new Blob([content], { type: 'text/plain' });
     saveAs(blob, `${result.chapterName || 'chapter'}_template.txt`);
@@ -154,7 +155,6 @@ Methodology: ${result.methodology || 'N/A'}`;
         <p className={styles.description}>
           Upload a textbook chapter PDF to generate a VR template
         </p>
-
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
             <label htmlFor="grade-input" className={styles.label}>
@@ -203,8 +203,8 @@ Methodology: ${result.methodology || 'N/A'}`;
               <p><strong>Introduction:</strong> {result.introduction || 'N/A'}</p>
               <p><strong>Assets Required:</strong> {result.assets || 'N/A'}</p>
               <p><strong>Methodology:</strong> {result.methodology || 'N/A'}</p>
+              <p><strong>Lab Experiments:</strong> {result.labExperiments || 'N/A'}</p>
             </div>
-            
             <div className={styles.downloadOptions}>
               <div className={styles.formatSelector}>
                 <label>File Format:</label>
