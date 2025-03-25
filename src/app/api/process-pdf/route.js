@@ -4,6 +4,11 @@ import pdfParse from 'pdf-parse';
 
 // Initialize Google Generative AI with your API key from environment variables
 const genAI = new GoogleGenerativeAI("AIzaSyC59TDceV-5GBV7KjE_7cOZqzdZMlGx3I0");
+export const config = {
+  runtime: 'edge',
+  maxDuration: 60, // Set maximum duration to the highest allowed value
+};
+
 
 export async function POST(request) {
   try {
