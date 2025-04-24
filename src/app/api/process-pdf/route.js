@@ -97,7 +97,7 @@ export async function POST(request) {
       // Only proceed if we have lab experiments content
       if (parsedResult.labExperiments) {
         // Generate a prompt for the lab experiment
-        const promptResponse = await fetch('https://vr-lab-backend.onrender.com/api/generate-image-prompt', {
+        const promptResponse = await fetch('https://vigilant-balm-407317.el.r.appspot.com/api/generate-image-prompt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export async function POST(request) {
         }
         
         // Use the generated prompt to create an image
-        const imageResponse = await fetch('https://vr-lab-backend.onrender.com/api/generate-image', {
+        const imageResponse = await fetch('https://vigilant-balm-407317.el.r.appspot.com/api/generate-image', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
