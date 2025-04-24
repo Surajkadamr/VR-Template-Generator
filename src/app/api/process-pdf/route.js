@@ -55,7 +55,7 @@ export async function POST(request) {
     `;
 
     // Call the Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-04-17" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
