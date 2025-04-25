@@ -2,14 +2,6 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '4mb', // Or '10mb', '50mb', etc., depending on your PDF file size
-    },
-  },
-};
-
 // Initialize Google Generative AI with your API key from environment variables
 const genAI = new GoogleGenerativeAI("AIzaSyC59TDceV-5GBV7KjE_7cOZqzdZMlGx3I0");
 export async function POST(request) {
