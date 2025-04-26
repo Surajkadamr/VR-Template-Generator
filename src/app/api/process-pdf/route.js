@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
 // Initialize Google Generative AI with your API key from environment variables
-const genAI = new GoogleGenerativeAI("AIzaSyC59TDceV-5GBV7KjE_7cOZqzdZMlGx3I0");
+const genAI = new GoogleGenerativeAI("AIzaSyChPNLGqiMKC7-GVsrrgiWL8Sdx7IGNA-A");
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -97,7 +97,7 @@ export async function POST(request) {
       // Only proceed if we have lab experiments content
       if (parsedResult.labExperiments) {
         // Generate a prompt for the lab experiment
-        const promptResponse = await fetch('https://python-api-dot-vigilant-balm-407317.el.r.appspot.com//api/generate-image-prompt', {
+        const promptResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image-prompt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export async function POST(request) {
         }
         
         // Use the generated prompt to create an image
-        const imageResponse = await fetch('https://python-api-dot-vigilant-balm-407317.el.r.appspot.com//api/generate-image', {
+        const imageResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
