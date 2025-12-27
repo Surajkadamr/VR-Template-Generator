@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
 // Initialize Google Generative AI with your API key from environment variables
-const genAI = new GoogleGenerativeAI("AIzaSyChPNLGqiMKC7-GVsrrgiWL8Sdx7IGNA-A");
+const genAI = new GoogleGenerativeAI("AIzaSyC74adjiVd-9Oh1M5r0_tqEng10npFh_4M");
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -93,54 +93,54 @@ export async function POST(request) {
     }
 
     // Generate lab image directly here instead of calling another endpoint
-    try {
-      // Only proceed if we have lab experiments content
-      if (parsedResult.labExperiments) {
-        // Generate a prompt for the lab experiment
-        const promptResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image-prompt', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ experimentDetails: parsedResult.labExperiments }),
-        });
+    // try {
+    //   // Only proceed if we have lab experiments content
+    //   if (parsedResult.labExperiments) {
+    //     // Generate a prompt for the lab experiment
+    //     const promptResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image-prompt', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ experimentDetails: parsedResult.labExperiments }),
+    //     });
         
-        if (!promptResponse.ok) {
-          const errorData = await promptResponse.json();
-          throw new Error(`Failed to generate prompt: ${errorData.error || promptResponse.statusText}`);
-        }
+    //     if (!promptResponse.ok) {
+    //       const errorData = await promptResponse.json();
+    //       throw new Error(`Failed to generate prompt: ${errorData.error || promptResponse.statusText}`);
+    //     }
         
-        const promptData = await promptResponse.json();
+    //     const promptData = await promptResponse.json();
         
-        if (!promptData.success || !promptData.prompt) {
-          throw new Error('Failed to generate a valid prompt');
-        }
+    //     if (!promptData.success || !promptData.prompt) {
+    //       throw new Error('Failed to generate a valid prompt');
+    //     }
         
-        // Use the generated prompt to create an image
-        const imageResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt: promptData.prompt }),
-        });
+    //     // Use the generated prompt to create an image
+    //     const imageResponse = await fetch('https://swift-temple-458004-k9.el.r.appspot.com/api/generate-image', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ prompt: promptData.prompt }),
+    //     });
         
-        if (!imageResponse.ok) {
-          const errorData = await imageResponse.json();
-          throw new Error(`Failed to generate image: ${errorData.error || imageResponse.statusText}`);
-        }
+    //     if (!imageResponse.ok) {
+    //       const errorData = await imageResponse.json();
+    //       throw new Error(`Failed to generate image: ${errorData.error || imageResponse.statusText}`);
+    //     }
         
-        const imageData = await imageResponse.json();
+    //     const imageData = await imageResponse.json();
         
-        // Add image data to the result
-        parsedResult.imagePrompt = promptData.prompt;
-        parsedResult.imageData = imageData.imageData;
-        parsedResult.imageDescription = imageData.text;
-      }
-    } catch (labImageError) {
-      console.error('Error generating lab image:', labImageError);
-      parsedResult.imageError = 'Failed to generate image: ' + labImageError.message;
-    }
+    //     // Add image data to the result
+    //     parsedResult.imagePrompt = promptData.prompt;
+    //     parsedResult.imageData = imageData.imageData;
+    //     parsedResult.imageDescription = imageData.text;
+    //   }
+    // } catch (labImageError) {
+    //   console.error('Error generating lab image:', labImageError);
+    //   parsedResult.imageError = 'Failed to generate image: ' + labImageError.message;
+    // }
 
     return NextResponse.json(parsedResult);
   } catch (error) {
