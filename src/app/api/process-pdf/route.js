@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
 // Initialize Google Generative AI with your API key from environment variables
-const genAI = new GoogleGenerativeAI("AIzaSyDqzHVFgcOmAUQ5iEYbJ7UIfdcq2xrUqN4");
+const genAI = new GoogleGenerativeAI("AIzaSyB_6xKV9M7Ns_yJEdmzt9aHbgO72V1jfO4");
 export async function POST(request) {
   try {
     const formData = await request.formData();
