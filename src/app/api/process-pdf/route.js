@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import pdfParse from 'pdf-parse';
 
 // Initialize Google Generative AI with your API key from environment variables
-const genAI = new GoogleGenerativeAI("AIzaSyC74adjiVd-9Oh1M5r0_tqEng10npFh_4M");
+const genAI = new GoogleGenerativeAI("AIzaSyDqzHVFgcOmAUQ5iEYbJ7UIfdcq2xrUqN4");
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -55,7 +55,7 @@ export async function POST(request) {
     `;
 
     // Call the Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
